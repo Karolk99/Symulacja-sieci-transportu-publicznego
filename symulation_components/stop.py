@@ -21,3 +21,14 @@ class AbstractStop(ABC):
     @abstractmethod
     def getting_on_passangers(self, limit: int = 10) -> List[AbstractPassenger]:
         pass
+
+
+class BusStop(AbstractStop):
+    def add_passangers(self, passengers: List[AbstractPassenger]) -> bool:
+        pass
+
+    def getting_on_passangers(self, limit: int = 10) -> List[AbstractPassenger]:
+        pass
+
+    def __init__(self, _id: str):
+        self.id = _id
