@@ -15,10 +15,9 @@ class Visualizer(ABC):
 class PromptVisualizer(Visualizer):
     @staticmethod
     def print(_vehicles: List[AbstractVehicle], _route: Route):
-        for v in _vehicles:
-            print(' ' * v.position, end='')
-            print(v.id, end='')
-        print('')
+        for v in _vehicles[:-1]:
+            print(' ' * v.position, v.id)
+        print(' ' * _vehicles[-1].position, _vehicles[-1].id)
         for route_stop in _route.topology:
             print(f'{route_stop.id}', end='')
             print('-' * int(route_stop.to_next), end='')

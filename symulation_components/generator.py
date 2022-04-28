@@ -4,5 +4,5 @@ from stop import AbstractStop
 
 class AbstractGenerator(ABC):
     @abstractmethod
-    def generete_passengers(self, stop: AbstractStop) -> bool:
+    def generate_passengers(self, stop: AbstractStop) -> bool:
         pass
