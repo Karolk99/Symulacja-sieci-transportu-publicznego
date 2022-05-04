@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from dataclasses import dataclass
 from typing import List
 
@@ -7,7 +7,7 @@ from stop import AbstractStop
 
 @dataclass
 class RouteStop:
-    id: str
+    stop_urn: str
     to_next: float
 
 
@@ -17,7 +17,7 @@ class Route:
 
     @classmethod
     def from_stops(cls, stops: List[AbstractStop], weights: List[float]):
-        top = [RouteStop(to_next=w, id=s.id) for s, w in zip(stops, weights)]
+        top = [RouteStop(to_next=w, stop_urn=s.actor_urn.get()) for s, w in zip(stops, weights)]
         return cls(topology=top)
 
 

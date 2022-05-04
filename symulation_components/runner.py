@@ -1,20 +1,27 @@
+import asyncio
 from abc import ABC, abstractmethod
 from time import sleep
 
 from symulation_components.map import Route
+from symulation_components.messages import VehicleMsg
 from symulation_components.stop import BusStop
-from symulation_components.vehicle import Bus, BusState
+from symulation_components.vehicle import Bus, BusState, AbstractVehicle
 from symulation_components.visualizer import PromptVisualizer
 
 
 class Runner:
     @staticmethod
-    def run_simulation():
+    async def start_vehicle(vehicle: AbstractVehicle, time: float):
+        await asyncio.sleep(time)
+        vehicle.state = BusState.Running
+
+    @staticmethod
+    async def run_simulation():
         stops = [
-            BusStop('A'),
-            BusStop('B'),
-            BusStop('C'),
-            BusStop('D'),
+            BusStop.start('A').proxy(),
+            BusStop.start('B').proxy(),
+            BusStop.start('C').proxy(),
+            BusStop.start('D').proxy(),
         ]
         weights = [
             12,
@@ -26,22 +33,14 @@ class Runner:
         route_a = Route.from_stops(stops, weights)
 
         vehicles = [
-            Bus(1, route_a),
-            Bus(2, route_a)
+            Bus.start(1, route_a).proxy(),
+            Bus.start(2, route_a).proxy()
         ]
 
-        tick = 1
-        counter = 0
-        while True:
-            [v.drive(tick) for v in vehicles]
-            sleep(0.5)
-            PromptVisualizer.print(vehicles, route_a)
-            if counter == 2:
-                vehicles[0].state = BusState.Running
-            if counter == 10:
-                vehicles[1].state = BusState.Running
-            counter += 1
+        PromptVisualizer.start(vehicles, route_a)
+        await asyncio.gather(Runner.start_vehicle(vehicles[0], 2),
+                             Runner.start_vehicle(vehicles[1], 4))
 
 
 if __name__ == '__main__':
-    Runner.run_simulation()
+    asyncio.run(Runner.run_simulation())
