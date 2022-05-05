@@ -1,8 +1,13 @@
 from abc import ABC, abstractmethod
-from stop import AbstractStop
+
+
+class LoadDistribution:
+    @staticmethod
+    def get_dist(vehicle, route):
+        return 2 if vehicle.id == 1 else 3
 
 
 class AbstractGenerator(ABC):
     @abstractmethod
-    def generate_passengers(self, stop: AbstractStop) -> bool:
+    def generate_passengers(self, stop) -> bool:
         pass

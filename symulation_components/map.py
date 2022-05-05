@@ -2,7 +2,7 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import List
 
-from stop import AbstractStop
+from symulation_components.depot import AbstractStop
 
 
 @dataclass

@@ -1,4 +1,3 @@
-import os
 import sys
 from abc import ABC, abstractmethod
 from threading import Thread
@@ -6,7 +5,7 @@ from typing import List
 import time
 import pykka
 from pykka import ActorRegistry
-from vehicle import AbstractVehicle
+from symulation_components.vehicle import AbstractVehicle
 from map import Route
 
 
@@ -22,6 +21,9 @@ class Visualizer(ABC, pykka.ThreadingActor):
 
 
 class PromptVisualizer(Visualizer):
+    """
+    Visualizer generating basic output inside a console
+    """
     def __init__(self, _vehicles: List[AbstractVehicle], _route: Route):
         super().__init__()
         self._vehicles = _vehicles
@@ -36,10 +38,9 @@ class PromptVisualizer(Visualizer):
 
     def run(self):
         while True:
-            # PromptVisualizer.cls()
             for v in self._vehicles[:-1]:
-                print(' ' * v.position.get(), v.id.get())
-            print(' ' * self._vehicles[-1].position.get(), self._vehicles[-1].id.get())
+                print(' ' * int(v.position.get()), v.id.get())
+            print(' ' * int(self._vehicles[-1].position.get()), self._vehicles[-1].id.get())
             for route_stop in self._route.topology:
                 print(f'{ActorRegistry.get_by_urn(route_stop.stop_urn).proxy().id.get()}', end='')
                 print('-' * int(route_stop.to_next), end='')
