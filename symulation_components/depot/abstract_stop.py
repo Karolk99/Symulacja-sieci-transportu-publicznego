@@ -24,11 +24,15 @@ class AbstractStop(ABC, pykka.ThreadingActor):
         self._state = StopState.EMPTY
 
     @abstractmethod
-    def add_passangers(self, passengers: List[AbstractPassenger]) -> bool:
+    def add_passengers(self, passengers: List[AbstractPassenger]) -> bool:
         pass
 
     @abstractmethod
-    def getting_on_passangers(self, limit: int = 10) -> List[AbstractPassenger]:
+    def getting_on_passengers(self, vehicle: AbstractVehicle) -> List[AbstractPassenger]:
+        pass
+
+    @abstractmethod
+    def getting_out_passengers(self, vehicle: AbstractVehicle) -> List[int]:
         pass
 
     @abstractmethod
