@@ -1,8 +1,8 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import List
-
-from symulation_components.depot import AbstractStop
+from typing import Dict, List
+from networkx import DiGraph
+from pykka import ActorProxy
 
 
 @dataclass
@@ -16,11 +16,19 @@ class Route:
     topology: List[RouteStop]
 
     @classmethod
-    def from_stops(cls, stops: List[AbstractStop], weights: List[float]):
+    def from_stops(cls, stops: List[ActorProxy], weights: List[float]):
         top = [RouteStop(to_next=w, stop_urn=s.actor_urn.get()) for s, w in zip(stops, weights)]
         return cls(topology=top)
 
 
 class AbstractMap(ABC):
-    stops: List[AbstractStop]
+    stops: Dict[str, ActorProxy]
     routs: List[Route]
+    topology: DiGraph
+
+
+@dataclass
+class Map:
+    stops: Dict[str, ActorProxy]
+    routs: List[Route]
+    topology: DiGraph

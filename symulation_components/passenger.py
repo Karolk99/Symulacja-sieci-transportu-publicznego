@@ -2,5 +2,11 @@ from abc import ABC
 
 
 class AbstractPassenger(ABC):
-    destination: int
-    source: int
+    destination: str
+    source: str
+
+
+class Passenger(AbstractPassenger):
+    def __init__(self, destination: str, source: str) -> None:
+        self.destination = destination
+        self.source = source

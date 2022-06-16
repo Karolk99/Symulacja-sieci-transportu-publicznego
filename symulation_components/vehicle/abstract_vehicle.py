@@ -1,13 +1,9 @@
 from __future__ import annotations
-import asyncio
-import time
 from abc import ABC, abstractmethod
-from copy import deepcopy, copy
 from dataclasses import dataclass
 from threading import Thread
 from typing import List
 import pykka
-from enum import Enum
 
 from pykka import ActorRegistry
 
@@ -46,6 +42,13 @@ class AbstractVehicle(ABC, pykka.ThreadingActor):
         self._state = VehicleState.Idle
         self._boarding_timer = AbstractVehicle.BOARDING_TIME
 
+    def remove_passengers(self, passengers_indexes: List[int]):
+        for index in passengers_indexes:
+            self.passengers.pop(index)
+
+    def add_passengers(self, passengers: List[AbstractPassenger]):
+        self.passengers.extend(passengers)
+
     @abstractmethod
     def on_start(self) -> None:
         pass
@@ -69,6 +72,17 @@ class AbstractVehicle(ABC, pykka.ThreadingActor):
     @property
     def state(self):
         return self._state
+
+    @property
+    def seats_left(self) -> int:
+        return self.capacity - len(self.passengers)
+
+    @property
+    def stops_left(self) -> List[str]:
+        stops_left = []
+        for route_stop in self.current_route:
+            stops_left.append(ActorRegistry.get_by_urn(route_stop.stop_urn).proxy().id.get())
+        return stops_left
 
     @state.setter
     def state(self, _state: VehicleState):
