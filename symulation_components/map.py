@@ -7,7 +7,7 @@ from pykka import ActorProxy
 
 @dataclass
 class RouteStop:
-    stop_urn: str
+    stop: ActorProxy
     to_next: float
 
 
@@ -17,14 +17,8 @@ class Route:
 
     @classmethod
     def from_stops(cls, stops: List[ActorProxy], weights: List[float]):
-        top = [RouteStop(to_next=w, stop_urn=s.actor_urn.get()) for s, w in zip(stops, weights)]
+        top = [RouteStop(to_next=w, stop=s) for s, w in zip(stops, weights)]
         return cls(topology=top)
-
-
-class AbstractMap(ABC):
-    stops: Dict[str, ActorProxy]
-    routs: List[Route]
-    topology: DiGraph
 
 
 @dataclass

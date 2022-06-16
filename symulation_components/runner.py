@@ -1,5 +1,7 @@
 import asyncio
 
+from pykka import ActorProxy
+
 from symulation_components.map import Route
 from symulation_components.depot import BusStop
 from symulation_components.vehicle import Bus, VehicleState, AbstractVehicle
@@ -8,7 +10,7 @@ from symulation_components.visualizer import PromptVisualizer
 
 class Runner:
     @staticmethod
-    async def start_vehicle(vehicle: AbstractVehicle, time: float):
+    async def start_vehicle(vehicle: ActorProxy, time: float):
         await asyncio.sleep(time)
         vehicle.state = VehicleState.Running
 

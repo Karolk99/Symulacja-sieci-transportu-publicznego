@@ -4,7 +4,6 @@ from typing import List
 
 import pykka
 
-from symulation_components.depot import StopState
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from symulation_components.generator import LoadDistribution
@@ -17,22 +16,15 @@ class AbstractStop(ABC, pykka.ThreadingActor):
     passengers: List[AbstractPassenger]
     load_distribution: LoadDistribution
 
-    _state: StopState
-
     def __init__(self):
         super().__init__()
-        self._state = StopState.EMPTY
 
     @abstractmethod
     def add_passengers(self, passengers: List[AbstractPassenger]) -> bool:
         pass
 
     @abstractmethod
-    def getting_on_passengers(self, vehicle: AbstractVehicle) -> List[AbstractPassenger]:
-        pass
-
-    @abstractmethod
-    def getting_out_passengers(self, vehicle: AbstractVehicle) -> List[int]:
+    def updated_bus_passengers(self, vehicle: AbstractVehicle) -> List[AbstractPassenger]:
         pass
 
     @abstractmethod

@@ -31,7 +31,7 @@ class Bus(AbstractVehicle):
         while True:
             asyncio.run(self.drive(AbstractVehicle.SPEED * (time.time() - delta)))
             delta = time.time()
-            time.sleep(1)
+            time.sleep(1)  # TODO: ustalic czas iteracji
 
     async def drive(self, distance: float) -> None:
         """
@@ -62,16 +62,14 @@ class Bus(AbstractVehicle):
         :return:
         """
         self._state = VehicleState.Boarding
-        await ActorRegistry.get_by_urn(self.current_route[0].stop_urn)\
-            .proxy()\
-            .handle_vehicle(self)
+        await self.current_route[0].stop.handle_vehicle(self)
         self.current_route.pop(0)
         self._state = VehicleState.Running
 
-    def __init__(self, _id: int, route: Route):
+    def __init__(self, _id: int, route: Route, capacity: int):
         super().__init__()
         self.id = _id
-        self.capacity = 10
+        self.capacity = capacity
         self.route = route
 
         self.current_route = deepcopy(route.topology)
