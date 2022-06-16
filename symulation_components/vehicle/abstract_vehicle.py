@@ -29,6 +29,7 @@ class AbstractVehicle(ABC, pykka.ThreadingActor):
     passengers: List[AbstractPassenger]
 
     _position: int = 0
+    _iteration_time: float = 1
     _state: VehicleState
     _boarding_timer: int
     _thread_loop: Thread

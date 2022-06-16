@@ -3,8 +3,6 @@ import time
 from copy import deepcopy
 from threading import Thread
 
-from pykka import ActorRegistry
-
 from symulation_components.map import Route
 from symulation_components.vehicle import VehicleState
 from symulation_components.vehicle import AbstractVehicle
@@ -31,7 +29,7 @@ class Bus(AbstractVehicle):
         while True:
             asyncio.run(self.drive(AbstractVehicle.SPEED * (time.time() - delta)))
             delta = time.time()
-            time.sleep(1)  # TODO: ustalic czas iteracji
+            time.sleep(self._iteration_time)
 
     async def drive(self, distance: float) -> None:
         """
