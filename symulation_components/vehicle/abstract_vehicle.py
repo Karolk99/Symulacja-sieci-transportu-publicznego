@@ -28,7 +28,8 @@ class AbstractVehicle(ABC, pykka.ThreadingActor):
     current_route: List[RouteStop]
     passengers: List[AbstractPassenger]
 
-    _position: int
+    _position: int = 0
+    _iteration_time: float = 1
     _state: VehicleState
     _boarding_timer: int
     _thread_loop: Thread
@@ -38,13 +39,8 @@ class AbstractVehicle(ABC, pykka.ThreadingActor):
 
     def __init__(self):
         super().__init__()
-        self._position = 0
         self._state = VehicleState.Idle
         self._boarding_timer = AbstractVehicle.BOARDING_TIME
-
-    def remove_passengers(self, passengers_indexes: List[int]):
-        for index in passengers_indexes:
-            self.passengers.pop(index)
 
     def add_passengers(self, passengers: List[AbstractPassenger]):
         self.passengers.extend(passengers)
@@ -73,6 +69,10 @@ class AbstractVehicle(ABC, pykka.ThreadingActor):
     def state(self):
         return self._state
 
+    @state.setter
+    def state(self, _state: VehicleState):
+        self._state = _state
+
     @property
     def seats_left(self) -> int:
         return self.capacity - len(self.passengers)
@@ -81,12 +81,6 @@ class AbstractVehicle(ABC, pykka.ThreadingActor):
     def stops_left(self) -> List[str]:
         stops_left = []
         for route_stop in self.current_route:
-            stops_left.append(ActorRegistry.get_by_urn(route_stop.stop_urn).proxy().id.get())
+            stops_left.append(route_stop.stop.id.get())
         return stops_left
-
-    @state.setter
-    def state(self, _state: VehicleState):
-        self._state = _state
-
-
 

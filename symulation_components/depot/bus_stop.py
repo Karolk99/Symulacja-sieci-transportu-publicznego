@@ -16,40 +16,28 @@ class BusStop(AbstractStop):
         :param vehicle:
         :return:
         """
-        # check if busy (another vehicle already here) and wait
-        while self._state == StopState.BUSY:
-            time.sleep(0.01)
+        vehicle.passengers = self.updated_bus_passengers(vehicle)
 
-        # start handling vehicle
-        self._state = StopState.BUSY
-        vehicle.add_passengers(self.getting_on_passengers(vehicle))
-        vehicle.remove_passengers(self.getting_out_passengers(vehicle))
+    def updated_bus_passengers(self, vehicle: AbstractVehicle) -> List[AbstractPassenger]:
+        passengers_staying = self.passengers_staying(vehicle)
+        new_passengers = self.getting_on_passengers(vehicle)
 
-        self._state = StopState.EMPTY
-        # handling finished
+        return passengers_staying + new_passengers
 
-    def add_passengers(self, passengers: List[AbstractPassenger]) -> None:
-        self.passengers.extend(passengers)
+    def passengers_staying(self, vehicle: AbstractVehicle) -> List[AbstractPassenger]:
+        passengers_staying = []
+        for passenger in vehicle.passengers:
+            if passenger.destination != self.id:
+                passengers_staying.append(passenger)
 
-    def getting_out_passengers(self, vehicle: AbstractVehicle) -> List[int]:
-        passengers_indexes = []
-        for index, passenger in enumerate(vehicle.passengers):
-            if passenger.destination == self.id:
-                passengers_indexes.append(index)
-
-        return passengers_indexes
+        return passengers_staying
 
     def getting_on_passengers(self, vehicle: AbstractVehicle) -> List[AbstractPassenger]:
-        passenger_indexes = []
-        for index, passenger in enumerate(self.passengers):
-            if self.right_destination(vehicle, passenger):
-                passenger_indexes.append(index)
-
         getting_on_passengers = []
-        for index in passenger_indexes:
-            if vehicle.seats_left == len(getting_on_passengers):
-                break
-            getting_on_passengers.append(self.passengers.pop(index))
+        for passenger in self.passengers:
+            if self.right_destination(vehicle, passenger):
+                getting_on_passengers.append(passenger)
+                self.passengers.remove(passenger)
 
         return getting_on_passengers
 
@@ -59,7 +47,11 @@ class BusStop(AbstractStop):
             return True
         return False
 
-    def __init__(self, _id: str):
+    def add_passengers(self, passengers: List[AbstractPassenger]) -> None:
+        self.passengers.extend(passengers)
+
+    def __init__(self, _id: str, load: LoadDistribution):
         super().__init__()
         self.id = _id
-        self.load_distribution = LoadDistribution()
+        self.load_distribution = load
+        self.passengers = []
