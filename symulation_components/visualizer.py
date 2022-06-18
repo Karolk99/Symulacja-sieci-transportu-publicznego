@@ -42,7 +42,7 @@ class PromptVisualizer(Visualizer):
                 print(' ' * int(v.position.get()), v.id.get())
             print(' ' * int(self._vehicles[-1].position.get()), self._vehicles[-1].id.get())
             for route_stop in self._route.topology:
-                print(f'{ActorRegistry.get_by_urn(route_stop.stop_urn).proxy().id.get()}', end='')
+                print(f'{route_stop.stop.id.get()}', end='')
                 print('-' * int(route_stop.to_next), end='')
             print('\n\n\n')
             sys.stdout.flush()

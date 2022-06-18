@@ -1,7 +1,6 @@
-import time
 from typing import List
 
-from symulation_components.depot import AbstractStop, StopState
+from symulation_components.depot import AbstractStop
 from symulation_components.generator import LoadDistribution
 from symulation_components.passenger import AbstractPassenger
 from symulation_components.vehicle import AbstractVehicle

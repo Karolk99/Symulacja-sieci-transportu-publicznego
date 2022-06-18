@@ -1,7 +1,9 @@
 import asyncio
+import logging
 
 from pykka import ActorProxy
 
+from symulation_components.generator import LoadDistribution
 from symulation_components.map import Route
 from symulation_components.depot import BusStop
 from symulation_components.vehicle import Bus, VehicleState, AbstractVehicle
@@ -18,12 +20,17 @@ class Runner:
     async def run_simulation():
         # @TODO consider adding some configuration loading component
 
+        logging.root.setLevel(logging.WARNING)
+
+        distribution = [number for number in range(24)]
+        load = LoadDistribution(distribution)
+
         # create route with bus stops and weights (distances to next bus stop)
         stops = [
-            BusStop.start('A').proxy(),
-            BusStop.start('B').proxy(),
-            BusStop.start('C').proxy(),
-            BusStop.start('D').proxy(),
+            BusStop.start('A', load).proxy(),
+            BusStop.start('B', load).proxy(),
+            BusStop.start('C', load).proxy(),
+            BusStop.start('D', load).proxy(),
         ]
         weights = [
             12,
@@ -35,8 +42,8 @@ class Runner:
 
         # create buses
         vehicles = [
-            Bus.start(1, route_a).proxy(),
-            Bus.start(2, route_a).proxy()
+            Bus.start(1, route_a, 100).proxy(),
+            Bus.start(2, route_a, 100).proxy()
         ]
 
         # start console visualizer

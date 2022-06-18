@@ -1,35 +1,36 @@
 import asyncio
+import logging
 import time
-from copy import deepcopy
-from threading import Thread
-
 from symulation_components.map import Route
 from symulation_components.vehicle import VehicleState
 from symulation_components.vehicle import AbstractVehicle
+from symulation_components.util.scheduler import Scheduler
 
 
 class Bus(AbstractVehicle):
     """
     Implementation of Bus type vehicle
+
+    # TODO add deleting after finishing root
     """
     def on_start(self) -> None:
-        self._thread_loop = Thread(target=self.run)
-        self._thread_loop.start()
+        self._scheduler.start()
 
     def on_stop(self) -> None:
-        self._thread_loop.join()
+        self._scheduler.stop()
 
     def run(self):
+        raise NotImplementedError
+
+    def tick(self):
         """
         Constant runner inside actor
         with refresh rate 1 second
         :return:
         """
-        delta = 0.0
-        while True:
-            asyncio.run(self.drive(AbstractVehicle.SPEED * (time.time() - delta)))
-            delta = time.time()
-            time.sleep(self._iteration_time)
+        self.logger.debug(f'running Bus.id={self.id}... {AbstractVehicle.SPEED * (time.time() - self.delta):.2f}')
+        asyncio.run(self.drive(AbstractVehicle.SPEED * (time.time() - self.delta)))
+        self.delta = time.time()
 
     async def drive(self, distance: float) -> None:
         """
@@ -66,8 +67,11 @@ class Bus(AbstractVehicle):
 
     def __init__(self, _id: int, route: Route, capacity: int):
         super().__init__()
+        self.logger = logging.getLogger('simulation_components.vehicle.bus.Bus')
+        self._scheduler = Scheduler(schedulable=self, logger=self.logger)
+        self.delta = time.time()
         self.id = _id
         self.capacity = capacity
         self.route = route
 
-        self.current_route = deepcopy(route.topology)
+        self.current_route = route.topology[:]

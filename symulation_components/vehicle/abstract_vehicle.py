@@ -1,13 +1,16 @@
 from __future__ import annotations
+
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from threading import Thread
 from typing import List
 import pykka
 
-from pykka import ActorRegistry
-
 from typing import TYPE_CHECKING
+
+from symulation_components.util.scheduler import Scheduler, Schedulable
+
 if TYPE_CHECKING:
     from symulation_components.passenger import AbstractPassenger
     from symulation_components.map import Route, RouteStop
@@ -21,8 +24,9 @@ class RouteToNextStop:
     current_position: int
 
 
-class AbstractVehicle(ABC, pykka.ThreadingActor):
+class AbstractVehicle(pykka.ThreadingActor, Schedulable, ABC):
     id: int
+    delta: float
     capacity: int
     route: Route
     current_route: List[RouteStop]
@@ -33,14 +37,19 @@ class AbstractVehicle(ABC, pykka.ThreadingActor):
     _state: VehicleState
     _boarding_timer: int
     _thread_loop: Thread
+    _scheduler: Scheduler
 
     BOARDING_TIME = 1
     SPEED = 2
 
     def __init__(self):
         super().__init__()
-        self._state = VehicleState.Idle
+        self.passengers = []
+        self.delta = time.time()
+        self._position = 0
+        self._state = VehicleState.Running
         self._boarding_timer = AbstractVehicle.BOARDING_TIME
+        self._scheduler = Scheduler(schedulable=self)
 
     def add_passengers(self, passengers: List[AbstractPassenger]):
         self.passengers.extend(passengers)
@@ -83,4 +92,3 @@ class AbstractVehicle(ABC, pykka.ThreadingActor):
         for route_stop in self.current_route:
             stops_left.append(route_stop.stop.id.get())
         return stops_left
-
