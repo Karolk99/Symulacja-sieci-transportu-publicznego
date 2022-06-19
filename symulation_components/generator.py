@@ -17,6 +17,10 @@ class LoadDistribution:
     def __init__(self, load: List[int]) -> None:
         self.load = load
 
+    def __eq__(self, other):
+        return type(self) == type(other) and \
+               self.load == other.load
+
     def get_number_of_passengers(self, time: float):
         index = int(time) % len(self.load)
         return self.load[index]
