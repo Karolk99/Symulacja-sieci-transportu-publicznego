@@ -15,15 +15,7 @@ class BusStop(AbstractStop):
         :param vehicle:
         :return:
         """
-        self.update_changing_lines_passengers(vehicle)
         vehicle.passengers = self.updated_bus_passengers(vehicle)
-
-    def update_changing_lines_passengers(self, vehicle: AbstractVehicle) -> None:
-        for passenger in vehicle.passengers:
-            if passenger.current_destination == self.id:
-                passenger.current_destination = ""
-                self.passengers.append(passenger)
-                vehicle.passengers.remove(passenger)
 
     def updated_bus_passengers(self, vehicle: AbstractVehicle) -> List[AbstractPassenger]:
         new_passengers = self.getting_on_passengers(vehicle)
@@ -36,7 +28,7 @@ class BusStop(AbstractStop):
         for passenger in vehicle.passengers:
             if passenger.destination != self.id:
                 passengers_staying.append(passenger)
-
+        self.update_changing_lines_passengers(passengers_staying)
         return passengers_staying
 
     def getting_on_passengers(self, vehicle: AbstractVehicle) -> List[AbstractPassenger]:
@@ -49,6 +41,13 @@ class BusStop(AbstractStop):
                 self.passengers.remove(passenger)
 
         return getting_on_passengers
+
+    def update_changing_lines_passengers(self, passengers_staying: List[AbstractPassenger]) -> None:
+        for passenger in passengers_staying:
+            if passenger.current_destination == self.id:
+                passenger.current_destination = ""
+                self.passengers.append(passenger)
+                passengers_staying.remove(passenger)
 
     @staticmethod
     def current_destination(vehicle: AbstractVehicle, passenger: AbstractPassenger) -> str:
