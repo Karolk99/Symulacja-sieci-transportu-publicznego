@@ -12,6 +12,7 @@ from symulation_components.passenger import Passenger
 
 
 class LoadDistribution:
+    _SECONDS_IN_HOUR = 3600
     load: List[int]
 
     def __init__(self, load: List[int]) -> None:
@@ -22,7 +23,8 @@ class LoadDistribution:
                self.load == other.load
 
     def get_number_of_passengers(self, time: float):
-        index = int(time) % len(self.load)
+        curr_hour = time / self._SECONDS_IN_HOUR
+        index = int(curr_hour * (len(self.load) / 24)) % len(self.load)
         return self.load[index]
 
 
@@ -53,7 +55,9 @@ class PassengerGenerator(AbstractPassengerGenerator):
         passengers = []
         for _ in range(number_of_passengers):
             destination = self._choose_stop(possible_destinations)
-            passengers.append(Passenger(destination, stop.id.get()))
+            # passenger path without source
+            path = nx.shortest_path(self.map.topology, source=stop.id.get(), target=destination)[:1]
+            passengers.append(Passenger(destination, stop.id.get(), path))
 
         stop.add_passengers(passengers)
 
