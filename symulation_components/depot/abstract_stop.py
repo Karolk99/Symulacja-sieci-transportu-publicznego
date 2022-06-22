@@ -24,10 +24,6 @@ class AbstractStop(ABC, pykka.ThreadingActor):
         pass
 
     @abstractmethod
-    def updated_bus_passengers(self, vehicle: AbstractVehicle) -> List[AbstractPassenger]:
-        pass
-
-    @abstractmethod
     def handle_vehicle(self, vehicle: AbstractVehicle):
         """
         Handle vehicle stopping on depot, exchange passengers etc.
