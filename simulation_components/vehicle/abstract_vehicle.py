@@ -9,6 +9,7 @@ import pykka
 
 from typing import TYPE_CHECKING
 
+from simulation_components.observer import Observable
 from simulation_components.util.scheduler import Scheduler, Schedulable
 
 if TYPE_CHECKING:
@@ -24,7 +25,7 @@ class RouteToNextStop:
     current_position: int
 
 
-class AbstractVehicle(pykka.ThreadingActor, Schedulable, ABC):
+class AbstractVehicle(pykka.ThreadingActor, Observable, Schedulable, ABC):
     id: int
     delta: float
     capacity: int

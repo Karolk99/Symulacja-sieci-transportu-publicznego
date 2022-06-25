@@ -2,6 +2,7 @@ import asyncio
 import logging
 import time
 from simulation_components.map import Route
+from simulation_components.observer import Observer
 from simulation_components.vehicle import VehicleState
 from simulation_components.vehicle import AbstractVehicle
 from simulation_components.util.scheduler import Scheduler
@@ -13,6 +14,10 @@ class Bus(AbstractVehicle):
 
     # TODO add deleting after finishing root
     """
+
+    def info_(self):
+        return self.id, self.current_route[0].stop, self.passengers
+
     def on_start(self) -> None:
         self._scheduler.start()
 
@@ -54,6 +59,7 @@ class Bus(AbstractVehicle):
         else:
             await self._handle_stop()
 
+    @Observer.observe
     async def _handle_stop(self):
         """
         When bus reaches bus stop

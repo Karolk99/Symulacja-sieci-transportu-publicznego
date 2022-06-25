@@ -5,7 +5,8 @@ from unittest import mock
 import pykka
 
 from simulation_components.definitions import TEST_RES_DIR
-from simulation_components.main_actor import MainActor, Time
+from simulation_components.main_actor import MainActor
+from simulation_components.util.time import Time
 
 
 class BusE2ETest(unittest.TestCase):

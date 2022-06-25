@@ -10,7 +10,8 @@ from pykka import ActorProxy
 from simulation_components.definitions import TEST_RES_DIR
 from simulation_components.depot import AbstractStop
 from simulation_components.generator import PassengerGenerator
-from simulation_components.main_actor import MainActor, Time
+from simulation_components.main_actor import MainActor
+from simulation_components.util.time import Time
 from simulation_components.passenger import Passenger
 
 

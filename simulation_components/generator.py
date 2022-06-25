@@ -8,6 +8,7 @@ from typing import List
 from pykka import ActorProxy
 
 from simulation_components.map import Map
+from simulation_components.observer import Observer
 from simulation_components.passenger import Passenger
 
 
@@ -46,6 +47,7 @@ class PassengerGenerator(AbstractPassengerGenerator):
         for _, stop in self.map.stops.items():
             self.generate_for_one_stop(stop, time)
 
+    @Observer.observe
     def generate_for_one_stop(self, stop: ActorProxy, time: float) -> None:
         possible_destinations = list(nx.descendants(self.map.topology, stop.id.get()))
         if not possible_destinations:

@@ -7,7 +7,8 @@ from unittest import mock
 from unittest.mock import patch
 
 from simulation_components.definitions import TEST_RES_DIR
-from simulation_components.main_actor import MainActor, Time
+from simulation_components.main_actor import MainActor
+from simulation_components.util.time import Time
 from simulation_components.tests.util.ActorMock import ActorMock
 
 logger = logging.getLogger('e2e.test')

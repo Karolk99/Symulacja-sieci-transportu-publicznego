@@ -6,7 +6,7 @@ import pykka
 
 from simulation_components.depot import BusStop
 from simulation_components.generator import LoadDistribution
-from simulation_components.main_actor import Time
+from simulation_components.util.time import Time
 from simulation_components.map import Route
 from simulation_components.vehicle import Bus
 
