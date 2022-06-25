@@ -10,7 +10,7 @@ from pykka import ActorProxy
 from simulation_components.definitions import TEST_RES_DIR
 from simulation_components.depot import AbstractStop
 from simulation_components.generator import PassengerGenerator
-from simulation_components.main_actor import MainActor
+from simulation_components.main_actor import MainActor, Time
 from simulation_components.passenger import Passenger
 
 
@@ -40,4 +40,7 @@ class BuStopE2ETest(unittest.TestCase):
         stop.add_passengers([Passenger('A', stop.id.get(), ['A', 'B', 'C'])])
 
     def tearDown(self) -> None:
+        Time(...)\
+            .__class__\
+            .force_remove_instance()
         pykka.ActorRegistry.stop_all()

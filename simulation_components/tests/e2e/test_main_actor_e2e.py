@@ -7,7 +7,7 @@ from unittest import mock
 from unittest.mock import patch
 
 from simulation_components.definitions import TEST_RES_DIR
-from simulation_components.main_actor import MainActor
+from simulation_components.main_actor import MainActor, Time
 from simulation_components.tests.util.ActorMock import ActorMock
 
 logger = logging.getLogger('e2e.test')
@@ -18,6 +18,7 @@ class MainActorE2E(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        pykka.ActorRegistry.stop_all()
         cls.config_dir = os.path.join(TEST_RES_DIR, 'bus.config.yaml')
 
     @staticmethod
@@ -42,4 +43,7 @@ class MainActorE2E(unittest.TestCase):
         self.assertTrue(mocked_bus_stop.call_count, duration * 3)
 
     def tearDown(self) -> None:
+        Time(...)\
+            .__class__\
+            .force_remove_instance()
         pykka.ActorRegistry.stop_all()

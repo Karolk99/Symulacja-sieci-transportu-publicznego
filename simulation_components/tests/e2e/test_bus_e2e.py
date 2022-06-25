@@ -5,7 +5,7 @@ from unittest import mock
 import pykka
 
 from simulation_components.definitions import TEST_RES_DIR
-from simulation_components.main_actor import MainActor
+from simulation_components.main_actor import MainActor, Time
 
 
 class BusE2ETest(unittest.TestCase):
@@ -21,4 +21,7 @@ class BusE2ETest(unittest.TestCase):
         ...
 
     def tearDown(self) -> None:
+        Time(...)\
+            .__class__\
+            .force_remove_instance()
         pykka.ActorRegistry.stop_all()

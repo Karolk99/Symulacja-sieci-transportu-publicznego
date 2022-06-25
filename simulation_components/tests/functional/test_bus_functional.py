@@ -6,6 +6,7 @@ import pykka
 
 from simulation_components.depot import BusStop
 from simulation_components.generator import LoadDistribution
+from simulation_components.main_actor import Time
 from simulation_components.map import Route
 from simulation_components.vehicle import Bus
 
@@ -14,6 +15,9 @@ class BusFunctionalTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.logger = logging.getLogger('tests.functional.BusFunctionalTest')
+
+    def setUp(self) -> None:
+        Time(24)
 
     @staticmethod
     def basic_load():
@@ -45,6 +49,12 @@ class BusFunctionalTest(unittest.TestCase):
 
     def test_passengers_handling(self) -> None:
         ...
+
+    def tearDown(self) -> None:
+        Time(...)\
+            .__class__\
+            .force_remove_instance()
+        pykka.ActorRegistry.stop_all()
 
     @classmethod
     def tearDownClass(cls) -> None:

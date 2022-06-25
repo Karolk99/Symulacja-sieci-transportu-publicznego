@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pykka
 
 from simulation_components.definitions import TEST_RES_DIR
-from simulation_components.main_actor import MainActor
+from simulation_components.main_actor import MainActor, Time
 from simulation_components.vehicle import Bus, AbstractVehicle
 
 
@@ -28,6 +28,12 @@ class MainActorFunctTest(unittest.TestCase):
         # with patch.object(MainActor, 'tick', wraps=main_actor.tick) as mock:
         time.sleep(2)
         print(f'{mocked_main_actor.call_count=}')
+
+    def tearDown(self) -> None:
+        Time(...)\
+            .__class__\
+            .force_remove_instance()
+        pykka.ActorRegistry.stop_all()
 
     @classmethod
     def tearDownClass(cls) -> None:
