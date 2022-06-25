@@ -1,5 +1,6 @@
 time:
   base: 24
+  refresh_rate: 1
 lines:
   - line01:
       name: line01

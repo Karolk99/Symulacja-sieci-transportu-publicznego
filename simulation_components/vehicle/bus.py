@@ -1,10 +1,10 @@
 import asyncio
 import logging
 import time
-from symulation_components.map import Route
-from symulation_components.vehicle import VehicleState
-from symulation_components.vehicle import AbstractVehicle
-from symulation_components.util.scheduler import Scheduler
+from simulation_components.map import Route
+from simulation_components.vehicle import VehicleState
+from simulation_components.vehicle import AbstractVehicle
+from simulation_components.util.scheduler import Scheduler
 
 
 class Bus(AbstractVehicle):

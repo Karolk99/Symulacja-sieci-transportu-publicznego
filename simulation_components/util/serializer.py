@@ -2,9 +2,9 @@ import networkx as nx
 import yaml
 from pykka import ActorRef
 
-from symulation_components.depot import BusStop
-from symulation_components.generator import LoadDistribution
-from symulation_components.map import Route
+from simulation_components.depot import BusStop
+from simulation_components.generator import LoadDistribution
+from simulation_components.map import Route
 
 
 class Serializer:
@@ -36,6 +36,9 @@ class Serializer:
 
     def get_time_base(self):
         return self._dict['time']['base']
+
+    def get_ref_rate(self):
+        return self._dict['time']['refresh_rate']
 
     def get_routes(self) -> [Route]:
         # get loads

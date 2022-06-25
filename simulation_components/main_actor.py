@@ -4,11 +4,11 @@ from threading import Thread
 import pykka
 from pykka import ActorRef, ActorProxy
 
-from symulation_components.generator import PassengerGenerator
-from symulation_components.map import Map
-from symulation_components.util.scheduler import Schedulable, Scheduler
-from symulation_components.util.serializer import Serializer
-from symulation_components.vehicle import Bus
+from simulation_components.generator import PassengerGenerator
+from simulation_components.map import Map
+from simulation_components.util.scheduler import Schedulable, Scheduler
+from simulation_components.util.serializer import Serializer
+from simulation_components.vehicle import Bus
 
 
 class Singleton(type):
@@ -63,6 +63,8 @@ class MainActor(pykka.ThreadingActor, Schedulable):
     _passenger_gen: ActorProxy
     _map: Map
 
+    _refresh_rate: float
+
     def __init__(self, config_path: str):
         super().__init__()
         self.logger = logging.getLogger('simulation_components.main_actor.MainActor')
@@ -81,10 +83,14 @@ class MainActor(pykka.ThreadingActor, Schedulable):
             # {stop.id.get(): stop for stop in self._stops}
             self._map = Map({}, routes, serializer.get_graph())
             self._passenger_gen = PassengerGenerator.start(self._map).proxy()
+
+            self._refresh_rate = serializer.get_ref_rate()
         except (ValueError, KeyError) as e:
             self.logger.error(e)
             exit(1)
-        self._scheduler = Scheduler(schedulable=self, logger=self.logger)
+        self._scheduler = Scheduler(schedulable=self,
+                                    logger=self.logger,
+                                    refresh_rate=self._refresh_rate)
         self._stop_event = threading.Event()
         self._last_id = 0
         self.logger.info('creating an instance of MainActor')

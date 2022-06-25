@@ -16,9 +16,9 @@ class Schedulable(abc.ABC):
 class Scheduler(Thread):
     _ref: Schedulable
     _stop_event: threading.Event
-    _refresh_rate: int
+    _refresh_rate: float
 
-    def __init__(self, *, schedulable: Schedulable, refresh_rate: int = 1, logger: logging.Logger = None):
+    def __init__(self, *, schedulable: Schedulable, refresh_rate: float = 1, logger: logging.Logger = None):
         super().__init__()
         self.logger = logger.getChild('Scheduler') if logger else logging.getLogger(
             'simulation_components.Scheduler')

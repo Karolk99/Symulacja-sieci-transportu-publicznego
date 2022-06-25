@@ -1,6 +1,6 @@
-from symulation_components.generator import PassengerGenerator, LoadDistribution
-from symulation_components.map import Map, Route
-from symulation_components.depot import BusStop
+from simulation_components.generator import PassengerGenerator, LoadDistribution
+from simulation_components.map import Map, Route
+from simulation_components.depot import BusStop
 
 import asyncio
 import networkx as nx

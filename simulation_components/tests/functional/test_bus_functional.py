@@ -4,10 +4,10 @@ import unittest
 
 import pykka
 
-from symulation_components.depot import BusStop
-from symulation_components.generator import LoadDistribution
-from symulation_components.map import Route
-from symulation_components.vehicle import Bus
+from simulation_components.depot import BusStop
+from simulation_components.generator import LoadDistribution
+from simulation_components.map import Route
+from simulation_components.vehicle import Bus
 
 
 class BusFunctionalTest(unittest.TestCase):
@@ -42,6 +42,9 @@ class BusFunctionalTest(unittest.TestCase):
         self.assertLess(4, bus.position.get())
         self.logger.info(f'bus final position={bus.position.get()}')
         bus.stop()
+
+    def test_passengers_handling(self) -> None:
+        ...
 
     @classmethod
     def tearDownClass(cls) -> None:

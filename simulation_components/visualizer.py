@@ -5,7 +5,7 @@ from typing import List
 import time
 import pykka
 from pykka import ActorRegistry
-from symulation_components.vehicle import AbstractVehicle
+from simulation_components.vehicle import AbstractVehicle
 from map import Route
 
 

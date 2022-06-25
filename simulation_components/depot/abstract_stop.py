@@ -6,9 +6,9 @@ import pykka
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from symulation_components.generator import LoadDistribution
-    from symulation_components.passenger import AbstractPassenger
-    from symulation_components.vehicle import AbstractVehicle
+    from simulation_components.generator import LoadDistribution
+    from simulation_components.passenger import AbstractPassenger
+    from simulation_components.vehicle import AbstractVehicle
 
 
 class AbstractStop(ABC, pykka.ThreadingActor):

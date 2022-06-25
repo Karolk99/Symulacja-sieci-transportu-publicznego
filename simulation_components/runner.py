@@ -3,11 +3,11 @@ import logging
 
 from pykka import ActorProxy
 
-from symulation_components.generator import LoadDistribution
-from symulation_components.map import Route
-from symulation_components.depot import BusStop
-from symulation_components.vehicle import Bus, VehicleState, AbstractVehicle
-from symulation_components.visualizer import PromptVisualizer
+from simulation_components.generator import LoadDistribution
+from simulation_components.map import Route
+from simulation_components.depot import BusStop
+from simulation_components.vehicle import Bus, VehicleState, AbstractVehicle
+from simulation_components.visualizer import PromptVisualizer
 
 
 class Runner:

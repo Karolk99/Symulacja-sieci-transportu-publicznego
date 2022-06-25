@@ -1,9 +1,9 @@
 from typing import List
 
-from symulation_components.depot import AbstractStop
-from symulation_components.generator import LoadDistribution
-from symulation_components.passenger import AbstractPassenger
-from symulation_components.vehicle import AbstractVehicle
+from simulation_components.depot import AbstractStop
+from simulation_components.generator import LoadDistribution
+from simulation_components.passenger import AbstractPassenger
+from simulation_components.vehicle import AbstractVehicle
 
 
 class BusStop(AbstractStop):

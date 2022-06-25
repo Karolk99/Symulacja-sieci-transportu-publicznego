@@ -9,12 +9,12 @@ import pykka
 
 from typing import TYPE_CHECKING
 
-from symulation_components.util.scheduler import Scheduler, Schedulable
+from simulation_components.util.scheduler import Scheduler, Schedulable
 
 if TYPE_CHECKING:
-    from symulation_components.passenger import AbstractPassenger
-    from symulation_components.map import Route, RouteStop
-from symulation_components.vehicle import VehicleState
+    from simulation_components.passenger import AbstractPassenger
+    from simulation_components.map import Route, RouteStop
+from simulation_components.vehicle import VehicleState
 
 
 @dataclass

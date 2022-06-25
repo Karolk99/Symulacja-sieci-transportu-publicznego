@@ -7,8 +7,8 @@ from typing import List
 
 from pykka import ActorProxy
 
-from symulation_components.map import Map
-from symulation_components.passenger import Passenger
+from simulation_components.map import Map
+from simulation_components.passenger import Passenger
 
 
 class LoadDistribution:
