@@ -1,9 +1,10 @@
+import logging
 from abc import ABC, abstractmethod
 
 import pykka
 import random
 import networkx as nx
-from typing import List
+from typing import List, Any
 
 from pykka import ActorProxy
 
@@ -39,15 +40,17 @@ class AbstractPassengerGenerator(ABC, pykka.ThreadingActor):
 
 class PassengerGenerator(AbstractPassengerGenerator):
 
-    def __init__(self, map: Map):
+    def __init__(self, _map: Map):
         super().__init__()
-        self.map = map
+        self.logger = logging.getLogger(f'simulation_components.generator.PassengerGenerator')
+        self.map = _map
 
+    @Observer.observe
     def generate(self, time: float) -> None:
+        self.logger.debug('generate')
         for _, stop in self.map.stops.items():
             self.generate_for_one_stop(stop, time)
 
-    @Observer.observe
     def generate_for_one_stop(self, stop: ActorProxy, time: float) -> None:
         possible_destinations = list(nx.descendants(self.map.topology, stop.id.get()))
         if not possible_destinations:
@@ -66,3 +69,6 @@ class PassengerGenerator(AbstractPassengerGenerator):
     @staticmethod
     def _choose_stop(stops: List[str]) -> str:
         return random.choice(stops)
+
+    def on_stop(self) -> None:
+        self.logger.debug('Stopping PassengerGenerator actor')

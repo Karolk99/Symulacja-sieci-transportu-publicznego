@@ -30,12 +30,20 @@ class MainActorFunctTest(unittest.TestCase):
         time.sleep(2)
         print(f'{mocked_main_actor.call_count=}')
 
+    def test_stability(self):
+        MainActor.start(self.example_config2).proxy()
+        time.sleep(15)
+
     def tearDown(self) -> None:
+        ref = pykka.ActorRegistry.get_by_class(MainActor)[0]
+        ref.stop(True, timeout=10)
+        time.sleep(1)
+        pykka.ActorRegistry.stop_all(timeout=5)
         Time(...)\
             .__class__\
             .force_remove_instance()
-        pykka.ActorRegistry.stop_all()
 
     @classmethod
     def tearDownClass(cls) -> None:
-        pykka.ActorRegistry.stop_all()
+        # pykka.ActorRegistry.stop_all()
+        ...

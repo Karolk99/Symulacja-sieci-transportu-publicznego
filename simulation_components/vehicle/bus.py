@@ -1,6 +1,8 @@
 import asyncio
 import logging
 import time
+
+from simulation_components.counter import Counter
 from simulation_components.map import Route
 from simulation_components.observer import Observer
 from simulation_components.vehicle import VehicleState
@@ -34,10 +36,10 @@ class Bus(AbstractVehicle):
         :return:
         """
         self.logger.debug(f'running Bus.id={self.id}... {AbstractVehicle.SPEED * (time.time() - self.delta):.2f}')
-        asyncio.run(self.drive(AbstractVehicle.SPEED * (time.time() - self.delta)))
+        self.drive(AbstractVehicle.SPEED * (time.time() - self.delta))
         self.delta = time.time()
 
-    async def drive(self, distance: float) -> None:
+    def drive(self, distance: float) -> None:
         """
         async method that changes position of bus.
         If bus reaches bus stop it calls
@@ -57,26 +59,34 @@ class Bus(AbstractVehicle):
             self.current_route[0].to_next -= distance
         # is boarding
         else:
-            await self._handle_stop()
+            self._handle_stop()
 
     @Observer.observe
-    async def _handle_stop(self):
+    @Counter.tape
+    def _handle_stop(self):
         """
         When bus reaches bus stop
         this method carries necessary steps
         :return:
         """
+        self.logger.debug(f'arrived to {self.current_route[0].stop.id.get()}; stops left {len(self.current_route)}')
+
         self._state = VehicleState.Boarding
-        await self.current_route[0].stop.handle_vehicle(self)
+        self.current_route[0].stop.handle_vehicle(self)
         self.current_route.pop(0)
+        self.logger.debug(f'leaving {self.current_route[0].stop.id.get()}; stops left {len(self.current_route)}')
+        # last stop
+        if not self.current_route:
+            self.logger.info(f'Bus stopped; passengers left: {len(self.passengers)}')
+            self.stop()
         self._state = VehicleState.Running
 
     def __init__(self, _id: int, route: Route, capacity: int):
         super().__init__()
-        self.logger = logging.getLogger('simulation_components.vehicle.bus.Bus')
+        self.id = _id
+        self.logger = logging.getLogger(f'simulation_components.vehicle.bus.Bus{self.id}')
         self._scheduler = Scheduler(schedulable=self, logger=self.logger)
         self.delta = time.time()
-        self.id = _id
         self.capacity = capacity
         self.route = route
 

@@ -29,3 +29,7 @@ class Time(metaclass=Singleton):
     def str2sec(time_str: str):
         ftr = [3600, 60, 1]
         return sum([a * b for a, b in zip(ftr, [int(i) for i in time_str.split(":")])])
+
+    @classmethod
+    def is_instance(cls):
+        return cls in cls._instances

@@ -4,13 +4,15 @@ from threading import Thread
 import pykka
 from pykka import ActorRef, ActorProxy
 
+from simulation_components.counter import CounterActor
+from simulation_components.depot import AbstractStop
 from simulation_components.observer import Observer
 from simulation_components.generator import PassengerGenerator
 from simulation_components.map import Map
 from simulation_components.util.scheduler import Schedulable, Scheduler
 from simulation_components.util.serializer import Serializer
 from simulation_components.util.time import Time
-from simulation_components.vehicle import Bus
+from simulation_components.vehicle import Bus, AbstractVehicle
 
 
 class MainActor(pykka.ThreadingActor, Schedulable):
@@ -43,8 +45,7 @@ class MainActor(pykka.ThreadingActor, Schedulable):
             base = serializer.get_time_base()
             self.time = Time(base)
 
-            # {stop.id.get(): stop for stop in self._stops}
-            self._map = Map({}, routes, serializer.get_graph())
+            self._map = Map(self._stops, routes, serializer.get_graph())
             self._passenger_gen = PassengerGenerator.start(self._map).proxy()
 
             self._refresh_rate = serializer.get_ref_rate()
@@ -62,6 +63,22 @@ class MainActor(pykka.ThreadingActor, Schedulable):
         self._scheduler.stop()
         self.logger.info(f'stopping an instance of MainActor {self._stop_event.is_set()}')
 
+        # stop all buses
+        self.logger.info(f'stopping an instance of Vehicles')
+        [ref.stop(True) for ref in pykka.ActorRegistry.get_by_class(AbstractVehicle)]
+
+        # stop all stops
+        self.logger.info(f'stopping an instance of BusStops')
+        [ref.stop(True) for ref in pykka.ActorRegistry.get_by_class(AbstractStop)]
+
+        # stop all passenger generators
+        self.logger.info(f'stopping an instance of Passenger generators')
+        [ref.stop(True) for ref in pykka.ActorRegistry.get_by_class(PassengerGenerator)]
+
+        # stop all counter actors
+        self.logger.info(f'stopping an instance of Counters')
+        [ref.stop(True) for ref in pykka.ActorRegistry.get_by_class(CounterActor)]
+
     def on_start(self) -> None:
         self._scheduler.start()
         self.logger.info('starting an instance of MainActor')
@@ -73,8 +90,9 @@ class MainActor(pykka.ThreadingActor, Schedulable):
         self.time.tick()
 
         # update bus stops
-        for stop in self._stops:
-            self._passenger_gen.generate_for_one_stop(self._stops[stop], self.time.time_sec())
+        # for stop in self._stops:
+        #     self._passenger_gen.generate_for_one_stop(self._stops[stop], self.time.time_sec())
+        self._passenger_gen.generate(self.time.time_sec())
 
         # update buses
         for record in self._time_table:
@@ -83,6 +101,6 @@ class MainActor(pykka.ThreadingActor, Schedulable):
                 for route in self._time_table[record]:
                     self._last_id += 1
                     bus = Bus.start(self._last_id, route, 50).proxy()
-                    self.logger.debug(f'Spawned new bus: {bus}')
+                    self.logger.debug(f'Spawned new bus (id={self._last_id}): {bus}')
 
-        self.logger.info(f'doing stuff... current time {self.time}')
+        self.logger.info(f'tick, time={self.time}')

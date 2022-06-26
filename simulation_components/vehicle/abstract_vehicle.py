@@ -71,25 +71,20 @@ class AbstractVehicle(pykka.ThreadingActor, Observable, Schedulable, ABC):
     def _handle_stop(self) -> None:
         pass
 
-    @property
     def position(self) -> int:
         return self._position
 
-    @property
     def state(self):
         return self._state
 
-    @state.setter
-    def state(self, _state: VehicleState):
+    def set_state(self, _state: VehicleState):
         self._state = _state
 
-    @property
     def seats_left(self) -> int:
         return self.capacity - len(self.passengers)
 
-    @property
-    def stops_left(self) -> List[str]:
+    def stops_left(self) -> List[pykka.ActorProxy]:
         stops_left = []
         for route_stop in self.current_route:
-            stops_left.append(route_stop.stop.id.get())
+            stops_left.append(route_stop.stop)
         return stops_left
