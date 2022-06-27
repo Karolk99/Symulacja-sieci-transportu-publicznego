@@ -17,7 +17,7 @@ class BusFunctionalTest(unittest.TestCase):
         cls.logger = logging.getLogger('tests.functional.BusFunctionalTest')
 
     def setUp(self) -> None:
-        Time(24)
+        print('starting test')
 
     @staticmethod
     def basic_load():
@@ -28,6 +28,8 @@ class BusFunctionalTest(unittest.TestCase):
         """
         Check that bus goes along the route
         """
+        Time(24)
+
         load = BusFunctionalTest.basic_load()
 
         stops = [
@@ -43,19 +45,20 @@ class BusFunctionalTest(unittest.TestCase):
 
         bus = Bus.start(1, route_a, 50).proxy()
         time.sleep(4)
-        self.assertLess(4, bus.position.get())
-        self.logger.info(f'bus final position={bus.position.get()}')
+        self.assertLess(4, bus.position().get())
+        self.logger.info(f'bus final position={bus.position().get()}')
         bus.stop()
 
     def test_passengers_handling(self) -> None:
         ...
 
     def tearDown(self) -> None:
-        Time(...)\
-            .__class__\
-            .force_remove_instance()
         pykka.ActorRegistry.stop_all()
+        Time.force_remove_instance()
+        time.sleep(2)
+        print('ending test')
 
     @classmethod
     def tearDownClass(cls) -> None:
         pykka.ActorRegistry.stop_all()
+        time.sleep(2)

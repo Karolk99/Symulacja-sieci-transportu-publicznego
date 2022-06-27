@@ -19,7 +19,6 @@ class MainActorE2E(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        pykka.ActorRegistry.stop_all()
         cls.config_dir = os.path.join(TEST_RES_DIR, 'bus.config.yaml')
 
     @staticmethod
@@ -29,6 +28,9 @@ class MainActorE2E(unittest.TestCase):
         logger.debug(f"Starting {obj}")
         obj._start_actor_loop()
         return obj.actor_ref
+
+    def setUp(self) -> None:
+        print('starting test')
 
     @patch('simulation_components.vehicle.Bus.start', autospec=True)
     @patch('simulation_components.depot.BusStop.start', autospec=True)
@@ -40,11 +42,13 @@ class MainActorE2E(unittest.TestCase):
         duration = 4
         time.sleep(duration)
 
+        print(Time(...))
+        self.assertEqual(Time(...).time_sec(), duration * 60 * 60)
         self.assertEqual(mocked_bus.call_count, duration * 2)
         self.assertTrue(mocked_bus_stop.call_count, duration * 3)
 
     def tearDown(self) -> None:
-        Time(...)\
-            .__class__\
-            .force_remove_instance()
         pykka.ActorRegistry.stop_all()
+        Time.force_remove_instance()
+        time.sleep(2)
+        print('ending test')

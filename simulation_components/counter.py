@@ -27,6 +27,12 @@ class CounterActor(pykka.ThreadingActor):
     def commuting_passengers_update(self, num: int):
         self._commuting_passengers_counter += num
 
+    def on_stop(self) -> None:
+        print('deleted counter actor')
+
+    def on_start(self) -> None:
+        print('started counter actor')
+
     @staticmethod
     def get_counter_actor() -> pykka.ActorProxy:
         counter_actors = pykka.ActorRegistry.get_by_class(CounterActor)

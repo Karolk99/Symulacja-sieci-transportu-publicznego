@@ -7,6 +7,7 @@ import io
 import pykka
 
 from simulation_components.counter import CounterActor
+from simulation_components.definitions import LOGGING_PATH
 from simulation_components.util.time import Time
 from simulation_components.util.singleton import Singleton
 
@@ -18,6 +19,7 @@ class CsvFormatter(logging.Formatter):
         self.writer = csv.writer(self.output, quoting=csv.QUOTE_ALL)
 
     def format(self, record):
+        # "timestamp", "origin", "buses", "passengers", "waiting_psg", "commuting_psg"
         self.writer.writerow([record.sim_time,
                               record.msg,
                               record.buses_num,
@@ -47,12 +49,13 @@ class Observer(metaclass=Singleton):
 
     def __init__(self):
         self.logger = logging.getLogger('observer')
-        handler = logging.StreamHandler()
+        handler = logging.FileHandler(LOGGING_PATH)
         handler.setFormatter(CsvFormatter())
         self.logger.addHandler(handler)
         self.logger.setLevel(logging.INFO)
 
         self._counter_actor = CounterActor.get_counter_actor()
+        self.logger.debug(f'Spawned CounterActor {self._counter_actor}')
 
     @staticmethod
     def _get_timestamp():

@@ -33,6 +33,7 @@ class MainActor(pykka.ThreadingActor, Schedulable):
     def __init__(self, config_path: str):
         super().__init__()
         self.logger = logging.getLogger('simulation_components.main_actor.MainActor')
+        Observer()
         try:
             serializer = Serializer(config_path)
             self._stops = serializer.get_stops()
@@ -43,6 +44,8 @@ class MainActor(pykka.ThreadingActor, Schedulable):
                 for time in route.schedule:
                     self._time_table.setdefault(Time.str2sec(time), []).append(route)
             base = serializer.get_time_base()
+            if Time.is_instance():
+                Time.force_remove_instance()
             self.time = Time(base)
 
             self._map = Map(self._stops, routes, serializer.get_graph())
@@ -63,6 +66,10 @@ class MainActor(pykka.ThreadingActor, Schedulable):
         self._scheduler.stop()
         self.logger.info(f'stopping an instance of MainActor {self._stop_event.is_set()}')
 
+        # stop all passenger generators
+        self.logger.info(f'stopping an instance of Passenger generators')
+        [ref.stop(True) for ref in pykka.ActorRegistry.get_by_class(PassengerGenerator)]
+
         # stop all buses
         self.logger.info(f'stopping an instance of Vehicles')
         [ref.stop(True) for ref in pykka.ActorRegistry.get_by_class(AbstractVehicle)]
@@ -71,13 +78,15 @@ class MainActor(pykka.ThreadingActor, Schedulable):
         self.logger.info(f'stopping an instance of BusStops')
         [ref.stop(True) for ref in pykka.ActorRegistry.get_by_class(AbstractStop)]
 
-        # stop all passenger generators
-        self.logger.info(f'stopping an instance of Passenger generators')
-        [ref.stop(True) for ref in pykka.ActorRegistry.get_by_class(PassengerGenerator)]
+        # remove Observer
+        Observer.force_remove_instance()
 
         # stop all counter actors
         self.logger.info(f'stopping an instance of Counters')
         [ref.stop(True) for ref in pykka.ActorRegistry.get_by_class(CounterActor)]
+
+        # remove Time
+        Time.force_remove_instance()
 
     def on_start(self) -> None:
         self._scheduler.start()
@@ -104,3 +113,12 @@ class MainActor(pykka.ThreadingActor, Schedulable):
                     self.logger.debug(f'Spawned new bus (id={self._last_id}): {bus}')
 
         self.logger.info(f'tick, time={self.time}')
+
+    @staticmethod
+    def get_instance_proxy(config_path: str = None) -> pykka.ActorProxy:
+        main_actors = pykka.ActorRegistry.get_by_class(MainActor)
+        if not len(main_actors):
+            if not config_path:
+                raise ValueError('missing config_path, when no MainActor is present')
+            return MainActor.start(config_path).proxy()
+        return main_actors[0].proxy()

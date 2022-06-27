@@ -10,9 +10,8 @@ class Singleton(type):
         cls.__ext_name__ = cls.__name__
         return cls._instances[cls]
 
-    def force_remove_instance(cls) -> None:
-        # TODO fix me
-        cls._instances = {}
+    def force_remove_instance(self) -> None:
+        self._instances = {k: v for k, v in self._instances.items() if k.__name__ != self.__name__}
 
     @classmethod
     def is_instance(mcs, name: object = None) -> bool:
