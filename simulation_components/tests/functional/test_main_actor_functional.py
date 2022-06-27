@@ -32,7 +32,7 @@ class MainActorFunctTest(unittest.TestCase):
 
     def test_stability(self):
         MainActor.start(self.example_config2).proxy()
-        time.sleep(15)
+        time.sleep(20)
 
     def tearDown(self) -> None:
         ref = pykka.ActorRegistry.get_by_class(MainActor)[0]

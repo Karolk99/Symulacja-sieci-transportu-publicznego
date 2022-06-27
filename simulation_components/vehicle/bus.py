@@ -1,10 +1,14 @@
 import asyncio
 import logging
+import threading
 import time
+
+import pykka
 
 from simulation_components.counter import Counter
 from simulation_components.map import Route
 from simulation_components.observer import Observer
+from simulation_components.passenger import AbstractPassenger
 from simulation_components.vehicle import VehicleState
 from simulation_components.vehicle import AbstractVehicle
 from simulation_components.util.scheduler import Scheduler
@@ -54,7 +58,7 @@ class Bus(AbstractVehicle):
             # handle end of route
             return
         # is between stops
-        if self._state != VehicleState.Boarding and self.current_route[0].to_next >= distance:
+        if self._state == VehicleState.Running and self.current_route[0].to_next >= distance:
             self._position += distance
             self.current_route[0].to_next -= distance
         # is boarding
@@ -69,17 +73,23 @@ class Bus(AbstractVehicle):
         this method carries necessary steps
         :return:
         """
-        self.logger.debug(f'arrived to {self.current_route[0].stop.id.get()}; stops left {len(self.current_route)}')
-
+        stop_id = self.current_route[0].stop.id.get()
+        self.logger.debug(f'arrived to {stop_id}; stops left {len(self.current_route)} psg={len(self.passengers)}')
         self._state = VehicleState.Boarding
-        self.current_route[0].stop.handle_vehicle(self)
+        stops_left = [stop.id.get() for stop in self.stops_left()]
+        self.passengers = self.current_route[0].stop.handle_vehicle(self.passengers, stops_left).get()
         self.current_route.pop(0)
-        self.logger.debug(f'leaving {self.current_route[0].stop.id.get()}; stops left {len(self.current_route)}')
+        self.logger.debug(f'leaving {stop_id}; stops left {len(self.current_route)} psg={len(self.passengers)}')
         # last stop
         if not self.current_route:
             self.logger.info(f'Bus stopped; passengers left: {len(self.passengers)}')
             self.stop()
         self._state = VehicleState.Running
+        self._thread_hook = None
+
+    @Counter.tape
+    def set_passengers(self, passengers: [AbstractPassenger]):
+        self.passengers = passengers
 
     def __init__(self, _id: int, route: Route, capacity: int):
         super().__init__()

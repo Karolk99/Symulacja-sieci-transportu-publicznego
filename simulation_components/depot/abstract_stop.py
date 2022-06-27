@@ -26,10 +26,11 @@ class AbstractStop(ABC, pykka.ThreadingActor):
         pass
 
     @abstractmethod
-    def handle_vehicle(self, vehicle: AbstractVehicle):
+    def handle_vehicle(self, passengers: [AbstractPassenger], possible_stops: [pykka.ActorProxy]):
         """
         Handle vehicle stopping on depot, exchange passengers etc.
-        :param vehicle: vehicle that stops in
+        :param passengers:
+        :param possible_stops:
         :return: None
         """
         pass

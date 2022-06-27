@@ -1,6 +1,8 @@
 import logging
 from typing import List
 
+import pykka
+
 from simulation_components.counter import Counter
 from simulation_components.depot import AbstractStop
 from simulation_components.generator import LoadDistribution
@@ -9,16 +11,16 @@ from simulation_components.vehicle import AbstractVehicle
 
 
 class BusStop(AbstractStop):
-    def handle_vehicle(self, vehicle: AbstractVehicle):
+    def handle_vehicle(self, passengers: [AbstractPassenger], possible_stops: [str]):
         """
         Called by vehicle when it reaches this BusStop.
         Only one Vehicle can be on the BusStop at
         the time.
-        :param vehicle:
+        :param possible_stops:
+        :param passengers:
         :return:
         """
-        self.logger.info(f'Handling vehicle {vehicle.id}')
-        vehicle.passengers = self.updated_bus_passengers(vehicle)
+        return self.updated_bus_passengers(passengers, possible_stops)
 
     def get_id(self) -> str:
         return self.id
@@ -26,26 +28,26 @@ class BusStop(AbstractStop):
     def on_stop(self) -> None:
         self.logger.info('Stopping BusStop')
 
-    def updated_bus_passengers(self, vehicle: AbstractVehicle) -> List[AbstractPassenger]:
-        new_passengers = self.getting_on_passengers(vehicle)
-        passengers_staying = self.passengers_staying(vehicle)
+    def updated_bus_passengers(self, passengers: [AbstractPassenger], possible_stops: [str]) -> List[AbstractPassenger]:
+        new_passengers = self.getting_on_passengers(possible_stops)
+        passengers_staying = self.passengers_staying(passengers)
 
         return passengers_staying + new_passengers
 
     @Counter.tape
-    def passengers_staying(self, vehicle: AbstractVehicle) -> List[AbstractPassenger]:
+    def passengers_staying(self, passengers: [AbstractPassenger]) -> List[AbstractPassenger]:
         passengers_staying = []
-        for passenger in vehicle.passengers:
+        for passenger in passengers:
             if passenger.destination != self.id:
                 passengers_staying.append(passenger)
         self.update_changing_lines_passengers(passengers_staying)
         return passengers_staying
 
     @Counter.tape
-    def getting_on_passengers(self, vehicle: AbstractVehicle) -> List[AbstractPassenger]:
+    def getting_on_passengers(self, possible_stops: [str]) -> List[AbstractPassenger]:
         getting_on_passengers = []
         for passenger in self.passengers:
-            current_destination = self.current_destination(vehicle, passenger)
+            current_destination = self.current_destination(possible_stops, passenger)
             if current_destination:
                 passenger.current_destination = current_destination
                 getting_on_passengers.append(passenger)
@@ -61,8 +63,7 @@ class BusStop(AbstractStop):
                 passengers_staying.remove(passenger)
 
     @staticmethod
-    def current_destination(vehicle: AbstractVehicle, passenger: AbstractPassenger) -> str:
-        possible_stops = [stop.id.get() for stop in vehicle.stops_left()]
+    def current_destination(possible_stops: [str], passenger: AbstractPassenger) -> str:
         for stop in reversed(passenger.path):
             if stop in possible_stops:
                 return stop

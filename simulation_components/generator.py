@@ -61,7 +61,7 @@ class PassengerGenerator(AbstractPassengerGenerator):
         for _ in range(number_of_passengers):
             destination = self._choose_stop(possible_destinations)
             # passenger path without source
-            path = nx.shortest_path(self.map.topology, source=stop.id.get(), target=destination)[:1]
+            path = nx.shortest_path(self.map.topology, source=stop.id.get(), target=destination)[1:]
             passengers.append(Passenger(destination, stop.id.get(), path))
 
         stop.add_passengers(passengers)
