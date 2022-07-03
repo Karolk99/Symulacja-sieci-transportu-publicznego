@@ -1,6 +1,3 @@
-import abc
-
-
 class Singleton(type):
     _instances = {}
 

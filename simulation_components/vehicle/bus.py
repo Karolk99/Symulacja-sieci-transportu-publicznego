@@ -1,9 +1,5 @@
-import asyncio
 import logging
-import threading
 import time
-
-import pykka
 
 from simulation_components.counter import Counter
 from simulation_components.map import Route
@@ -33,6 +29,7 @@ class Bus(AbstractVehicle):
     def run(self):
         raise NotImplementedError
 
+    @Observer.observe
     def tick(self):
         """
         Constant runner inside actor

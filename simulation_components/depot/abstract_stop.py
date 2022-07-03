@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from abc import ABC, abstractmethod
 from typing import List
 
@@ -10,7 +9,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from simulation_components.generator import LoadDistribution
     from simulation_components.passenger import AbstractPassenger
-    from simulation_components.vehicle import AbstractVehicle
 
 
 class AbstractStop(ABC, pykka.ThreadingActor):

@@ -92,15 +92,12 @@ class MainActor(pykka.ThreadingActor, Schedulable):
         self._scheduler.start()
         self.logger.info('starting an instance of MainActor')
 
-    @Observer.observe
     def tick(self) -> None:
         # change time
         prv_time = self.time.time_sec()
         self.time.tick()
 
         # update bus stops
-        # for stop in self._stops:
-        #     self._passenger_gen.generate_for_one_stop(self._stops[stop], self.time.time_sec())
         self._passenger_gen.generate(self.time.time_sec())
 
         # update buses

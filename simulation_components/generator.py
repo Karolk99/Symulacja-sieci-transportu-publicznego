@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import pykka
 import random
 import networkx as nx
-from typing import List, Any
+from typing import List
 
 from pykka import ActorProxy
 

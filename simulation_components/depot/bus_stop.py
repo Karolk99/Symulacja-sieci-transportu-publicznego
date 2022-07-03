@@ -1,13 +1,11 @@
 import logging
 from typing import List
 
-import pykka
-
 from simulation_components.counter import Counter
 from simulation_components.depot import AbstractStop
 from simulation_components.generator import LoadDistribution
+from simulation_components.observer import Observer
 from simulation_components.passenger import AbstractPassenger
-from simulation_components.vehicle import AbstractVehicle
 
 
 class BusStop(AbstractStop):
@@ -28,6 +26,7 @@ class BusStop(AbstractStop):
     def on_stop(self) -> None:
         self.logger.info('Stopping BusStop')
 
+    @Observer.observe
     def updated_bus_passengers(self, passengers: [AbstractPassenger], possible_stops: [str]) -> List[AbstractPassenger]:
         new_passengers = self.getting_on_passengers(possible_stops)
         passengers_staying = self.passengers_staying(passengers)
@@ -70,6 +69,7 @@ class BusStop(AbstractStop):
         return ""
 
     @Counter.tape
+    @Observer.observe
     def add_passengers(self, passengers: List[AbstractPassenger]) -> None:
         self.passengers.extend(passengers)
 

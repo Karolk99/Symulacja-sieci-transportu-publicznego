@@ -3,30 +3,58 @@ import dataclasses
 import logging
 import csv
 import io
+import os.path
 
 import pykka
 
 from simulation_components.counter import CounterActor
-from simulation_components.definitions import LOGGING_PATH
+from simulation_components.definitions import LOGGING_GLOB_PATH, LOGGING_CTX_PATH
 from simulation_components.util.time import Time
 from simulation_components.util.singleton import Singleton
 
 
-class CsvFormatter(logging.Formatter):
-    def __init__(self):
+class GlobalCsvFormatter(logging.Formatter):
+    def __init__(self, path: str):
         super().__init__()
         self.output = io.StringIO()
-        self.writer = csv.writer(self.output, quoting=csv.QUOTE_ALL)
+        headers = ['timestamp', 'origin', 'buses', 'passengers', 'waiting_psg', 'commuting_psg']
+        self.writer = csv.DictWriter(self.output, delimiter=',', lineterminator='\n', fieldnames=headers)
+
+        if not os.path.isfile(path):
+            self.writer.writeheader()  # file doesn't exist yet, write a header
 
     def format(self, record):
         # "timestamp", "origin", "buses", "passengers", "waiting_psg", "commuting_psg"
-        self.writer.writerow([record.sim_time,
-                              record.msg,
-                              record.buses_num,
-                              record.psg_num,
-                              record.waiting_psg,
-                              record.com_psg
-                              ])
+        self.writer.writerow({'timestamp': record.timestamp,
+                              'origin': record.origin,
+                              'buses': record.buses,
+                              'passengers': record.passengers,
+                              'waiting_psg': record.waiting_psg,
+                              'commuting_psg': record.commuting_psg
+                              })
+        data = self.output.getvalue()
+        self.output.truncate(0)
+        self.output.seek(0)
+        return data.strip()
+
+
+class ContextCsvFormatter(logging.Formatter):
+    def __init__(self, path: str):
+        super().__init__()
+        self.output = io.StringIO()
+        headers = ['timestamp', 'type', 'id', 'value']
+        self.writer = csv.DictWriter(self.output, delimiter=',', lineterminator='\n', fieldnames=headers)
+
+        if not os.path.isfile(path):
+            self.writer.writeheader()  # file doesn't exist yet, write a header
+
+    def format(self, record):
+        # timestamp type id value
+        self.writer.writerow({'timestamp': record.timestamp,
+                              'type': record.type,
+                              'id': record.id,
+                              'value': record.value
+                              })
         data = self.output.getvalue()
         self.output.truncate(0)
         self.output.seek(0)
@@ -48,14 +76,25 @@ class Observable(abc.ABC):
 class Observer(metaclass=Singleton):
 
     def __init__(self):
-        self.logger = logging.getLogger('observer')
-        handler = logging.FileHandler(LOGGING_PATH)
-        handler.setFormatter(CsvFormatter())
-        self.logger.addHandler(handler)
-        self.logger.setLevel(logging.INFO)
+        global_formatter = GlobalCsvFormatter(LOGGING_GLOB_PATH)
+        context_formatter = ContextCsvFormatter(LOGGING_CTX_PATH)
+
+        self.global_logger = logging.getLogger('observer.global')
+        handler = logging.FileHandler(LOGGING_GLOB_PATH)
+        handler.setFormatter(global_formatter)
+        self.global_logger.addHandler(handler)
+        self.global_logger.setLevel(logging.INFO)
+
+        self.context_logger = logging.getLogger('observer.context')
+        handler = logging.FileHandler(LOGGING_CTX_PATH)
+        handler.setFormatter(context_formatter)
+        self.context_logger.addHandler(handler)
+        self.context_logger.setLevel(logging.INFO)
+
+        self._prv_time = None
 
         self._counter_actor = CounterActor.get_counter_actor()
-        self.logger.debug(f'Spawned CounterActor {self._counter_actor}')
+        self.global_logger.debug(f'Spawned CounterActor {self._counter_actor}')
 
     @staticmethod
     def _get_timestamp():
@@ -71,11 +110,35 @@ class Observer(metaclass=Singleton):
             commuting_passengers = obs._counter_actor.commuting_passengers().get()
             waiting_passengers = obs._counter_actor.waiting_passengers().get()
 
-            obs.logger.info(f'{func.__name__}', extra={'sim_time': Observer._get_timestamp(),
-                                                       'buses_num': buses_num,
-                                                       'psg_num': commuting_passengers + waiting_passengers,
-                                                       'waiting_psg': waiting_passengers,
-                                                       'com_psg': commuting_passengers})
+            # log context based
+            self = args[0]
+            match self.__class__.__name__:
+                case ('Bus' | 'AbstractVehicle'):
+                    obs.context_logger.info(f'{func.__name__}', extra={
+                        'timestamp': Observer._get_timestamp(),
+                        'type': 'Bus',
+                        'id': self.id,
+                        'value': len(self.passengers)
+                    })
+                case ('BusStop' | 'AbstractStop'):
+                    obs.context_logger.info(f'{func.__name__}', extra={
+                        'timestamp': Observer._get_timestamp(),
+                        'type': 'BusStop',
+                        'id': self.id,
+                        'value': len(self.passengers)
+                    })
+
+            # log once global state
+            if obs._prv_time != obs._get_timestamp():
+                obs._prv_time = obs._get_timestamp()
+
+                obs.global_logger.info(f'{func.__name__}', extra={'timestamp': Observer._get_timestamp(),
+                                                                  'origin': func.__name__,
+                                                                  'buses': buses_num,
+                                                                  'passengers': commuting_passengers + waiting_passengers,
+                                                                  'waiting_psg': waiting_passengers,
+                                                                  'commuting_psg': commuting_passengers})
+
             return result
 
         return func_wrapper

@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pykka
 
-from simulation_components.definitions import TEST_RES_DIR, LOGGING_PATH_TEST
+from simulation_components.definitions import TEST_RES_DIR
 from simulation_components.main_actor import MainActor
 from simulation_components.util.time import Time
 from simulation_components.vehicle import AbstractVehicle

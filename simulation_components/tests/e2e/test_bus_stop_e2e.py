@@ -16,7 +16,6 @@ from simulation_components.util.time import Time
 from simulation_components.passenger import Passenger
 
 
-@unittest.skip
 class BuStopE2ETest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:

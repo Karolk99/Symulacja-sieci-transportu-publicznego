@@ -6,7 +6,7 @@ from pykka import ActorProxy
 from simulation_components.generator import LoadDistribution
 from simulation_components.map import Route
 from simulation_components.depot import BusStop
-from simulation_components.vehicle import Bus, VehicleState, AbstractVehicle
+from simulation_components.vehicle import Bus, VehicleState
 from simulation_components.visualizer import PromptVisualizer
 
 

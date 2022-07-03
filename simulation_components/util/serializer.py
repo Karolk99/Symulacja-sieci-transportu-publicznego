@@ -1,6 +1,5 @@
 import networkx as nx
 import yaml
-from pykka import ActorRef
 
 from simulation_components.depot import BusStop
 from simulation_components.generator import LoadDistribution

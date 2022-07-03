@@ -17,6 +17,7 @@ class BusFunctionalTest(unittest.TestCase):
         cls.logger = logging.getLogger('tests.functional.BusFunctionalTest')
 
     def setUp(self) -> None:
+        time.sleep(2)
         print('starting test')
 
     @staticmethod
@@ -24,6 +25,7 @@ class BusFunctionalTest(unittest.TestCase):
         distribution = [number for number in range(24)]
         return LoadDistribution(distribution)
 
+    @unittest.skip
     def test_bus_sanity(self) -> None:
         """
         Check that bus goes along the route
