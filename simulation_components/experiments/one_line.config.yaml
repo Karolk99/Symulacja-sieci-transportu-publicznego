@@ -1,0 +1,16 @@
+time:
+  base: 48
+  refresh_rate: .5
+lines:
+  - line01:
+      name: 'line01'
+      stops: [ 'A', 'B' ]
+      weights: [ 10, 10 ]
+      schedule: []
+loads:
+  - A:
+      name: 'A'
+      load: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ]
+  - B:
+      name: 'B'
+      load: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ]
